@@ -291,29 +291,23 @@ discordBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Get the RemoteFunction from ReplicatedStorage
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GetKeyFunction = ReplicatedStorage:WaitForChild("GetKeyFunction")
 
 local function fetchCorrectKey()
-    local success, response = pcall(function()
-        -- IMPORTANT: REPLACE THIS URL WITH YOUR DEPLOYED WEBSITE'S URL
-        local websiteUrl = "https://devilugly.vercel.app/api/get-key?userId=" .. player.UserId
-        return HttpService:GetAsync(websiteUrl)
+    local success, result = pcall(function()
+        -- Invoke the server-side RemoteFunction to get the key
+        return GetKeyFunction:InvokeServer(player.UserId)
     end)
 
-    if success then
-        local decodedResponse = HttpService:JSONDecode(response)
-        if decodedResponse and decodedResponse.key then
-            CORRECT_KEY = decodedResponse.key
-            print("Fetched correct key:", CORRECT_KEY)
-            return true
-        else
-            warn("Failed to decode key response or key not found:", response)
-            statusLabel.Text = "❌ Failed to get key from server."
-            statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            return false
-        end
+    if success and result and result.key then
+        CORRECT_KEY = result.key
+        print("Fetched correct key:", CORRECT_KEY)
+        return true
     else
-        warn("HTTP request failed:", response)
-        statusLabel.Text = "❌ Could not connect to key server."
+        warn("Failed to get key from server via RemoteFunction:", result and result.error or result)
+        statusLabel.Text = "❌ Failed to get key from server."
         statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
         return false
     end

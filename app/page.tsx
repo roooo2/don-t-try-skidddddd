@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast" // Assuming shadcn/ui toast hook is
 
 // Define your Work.ink checkpoint URLs here
 // IMPORTANT: For each Work.ink link, set its "Destination URL" in Work.ink's dashboard
-// to your main website URL: https://v0-roblox-lua-script-coral.vercel.app/
+// to your main website URL: https://devilugly.vercel.app/ (or your custom domain)
 const CHECKPOINTS = [
   {
     name: "Checkpoint 1",
