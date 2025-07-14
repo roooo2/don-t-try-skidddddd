@@ -1,7 +1,16 @@
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local GetKeyFunction = ReplicatedStorage:WaitForChild("GetKeyFunction")
+-- Ensure the RemoteFunction exists
+local GetKeyFunction = ReplicatedStorage:FindFirstChild("GetKeyFunction")
+if not GetKeyFunction then
+    GetKeyFunction = Instance.new("RemoteFunction")
+    GetKeyFunction.Name = "GetKeyFunction"
+    GetKeyFunction.Parent = ReplicatedStorage
+    print("Created RemoteFunction 'GetKeyFunction' in ReplicatedStorage.")
+else
+    print("Found existing RemoteFunction 'GetKeyFunction' in ReplicatedStorage.")
+end
 
 -- IMPORTANT: Ensure this URL matches your deployed website's URL
 local WEBSITE_BASE_URL = "https://devilugly.vercel.app"
