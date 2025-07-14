@@ -182,7 +182,7 @@ submitBtn.MouseEnter:Connect(function()
         Size = UDim2.new(0, 145, 0, 42)
     })
     hoverTween:Play()
-    local strokeTween = TweenService:Create(submitStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+    local strokeTween = TweenService:Create(submitStroke, TweenInfo.new(0.2), {
         Transparency = 0.1,
         Thickness = 3
     })
@@ -194,7 +194,7 @@ submitBtn.MouseLeave:Connect(function()
         Size = UDim2.new(0, 140, 0, 40)
     })
     leaveTween:Play()
-    local strokeTween = TweenService:Create(submitStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+    local strokeTween = TweenService:Create(submitStroke, TweenInfo.new(0.2), {
         Transparency = 0.4,
         Thickness = 2
     })
@@ -254,7 +254,7 @@ discordBtn.MouseEnter:Connect(function()
         Size = UDim2.new(0, 185, 0, 37)
     })
     hoverTween:Play()
-    local strokeTween = TweenService:Create(discordBtnStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+    local strokeTween = TweenService:Create(discordBtnStroke, TweenInfo.new(0.2), {
         Transparency = 0.1,
         Thickness = 3
     })
@@ -266,7 +266,7 @@ discordBtn.MouseLeave:Connect(function()
         Size = UDim2.new(0, 180, 0, 35)
     })
     leaveTween:Play()
-    local strokeTween = TweenService:Create(discordBtnStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+    local strokeTween = TweenService:Create(discordBtnStroke, TweenInfo.new(0.2), {
         Transparency = 0.4,
         Thickness = 2
     })
@@ -296,6 +296,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GetKeyFunction = ReplicatedStorage:WaitForChild("GetKeyFunction")
 
 local function fetchCorrectKey()
+    statusLabel.Text = "Fetching key from server..."
+    statusLabel.TextColor3 = Color3.fromRGB(255, 255, 100) -- Yellow for loading
+
     local success, result = pcall(function()
         -- Invoke the server-side RemoteFunction to get the key
         return GetKeyFunction:InvokeServer(player.UserId)
@@ -304,17 +307,28 @@ local function fetchCorrectKey()
     if success and result and result.key then
         CORRECT_KEY = result.key
         print("Fetched correct key:", CORRECT_KEY)
+        statusLabel.Text = "✅ Key fetched successfully!"
+        statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100) -- Green for success
+        task.wait(2)
+        statusLabel.Text = "" -- Clear message
         return true
     else
-        warn("Failed to get key from server via RemoteFunction:", result and result.error or result)
-        statusLabel.Text = "❌ Failed to get key from server."
-        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        local errorMessage = result and result.error or "Unknown error."
+        warn("Failed to get key from server via RemoteFunction:", errorMessage)
+        statusLabel.Text = "❌ Failed to get key: " .. errorMessage
+        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100) -- Red for error
+        keyInput.TextEditable = false
+        submitBtn.Active = false
+        submitBtn.Text = "SERVER ERROR"
         return false
     end
 end
 
 local function validateKey()
-    local enteredKey = keyInput.Text
+    local enteredKey = keyInput.Text:gsub("^%s*(.-)%s*$", "%1") -- Trim whitespace
+    print("Entered Key:", enteredKey)
+    print("Correct Key:", CORRECT_KEY)
+
     if enteredKey == CORRECT_KEY then
         statusLabel.Text = "✅ ACCESS GRANTED! Loading..."
         statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
@@ -522,11 +536,10 @@ function loadMainScript()
     local module = loadstring(game:HttpGet("https://raw.githubusercontent.com/LeoKholYt/roblox/main/lk_serverhop.lua"))()
     local function buyItem(itemName)
         local success, err = pcall(function()
-            local args = { itemName }
             game:GetService("ReplicatedStorage"):WaitForChild("Packages")
                 :WaitForChild("Net")
                 :WaitForChild("RF/CoinsShopService/RequestBuy")
-                :InvokeServer(unpack(args))
+                :InvokeServer(itemName) -- Changed to pass itemName directly
         end)
         if success then
             print("✅ Purchase Successful: " .. itemName)
@@ -1579,7 +1592,7 @@ end
 print("🔑 Devil Ugly's Key System Loaded!")
 print("Attempting to fetch key from server...")
 if fetchCorrectKey() then
-    print("💀 Enter key: " .. CORRECT_KEY)
+    print("💀 Key system initialized. Please enter your key.")
 else
     print("Failed to fetch key. Please check your internet connection or the server URL.")
     keyInput.TextEditable = false
