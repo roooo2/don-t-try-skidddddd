@@ -295,7 +295,7 @@ end)
 local function fetchCorrectKey()
     local success, response = pcall(function()
         -- IMPORTANT: REPLACE THIS URL WITH YOUR DEPLOYED WEBSITE'S URL
-        local websiteUrl = "https://v0-roblox-lua-script-coral.vercel.app/api/get-key?userId=" .. player.UserId
+        local websiteUrl = "https://devilugly.vercel.app/api/get-key?userId=" .. player.UserId
         return HttpService:GetAsync(websiteUrl)
     end)
 
